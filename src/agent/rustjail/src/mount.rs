@@ -202,7 +202,7 @@ pub fn init_rootfs(
 
     mount(None::<&str>, "/", None::<&str>, flags, None::<&str>)?;
     rootfs_parent_mount_private(rootfs)?;
-
+    
     mount(
         Some(rootfs),
         rootfs,
@@ -232,7 +232,7 @@ pub fn init_rootfs(
         };
 
         if m.r#type == "cgroup" {
-            mount_cgroups(cfd_log, m, rootfs, flags, &data, cpath, mounts)?;
+            mount_cgroups(cfd_log, &m, rootfs, flags, &data, cpath, mounts)?;
         } else {
             if m.destination == "/dev" {
                 if m.r#type == "bind" {
@@ -243,7 +243,7 @@ pub fn init_rootfs(
 
 
             if m.r#type == "bind" {
-                check_proc_mount(m)?;
+                check_proc_mount(&m)?;
             }
 
 
@@ -262,7 +262,7 @@ pub fn init_rootfs(
                 }
             }
 
-            mount_from(cfd_log, m, rootfs, flags, &data, label)?;
+            mount_from(cfd_log, &m, rootfs, flags, &data, label)?;
             // bind mount won't change mount options, we need remount to make mount options
             // effective.
             // first check that we have non-default options required before attempting a
@@ -429,6 +429,7 @@ fn mount_cgroups(
     };
 
     let cflags = MsFlags::MS_NOEXEC | MsFlags::MS_NOSUID | MsFlags::MS_NODEV;
+    log_child!(cfd_log, "### mount_cgroups");
     mount_from(cfd_log, &ctm, rootfs, cflags, "", "")?;
     let olddir = unistd::getcwd()?;
 
