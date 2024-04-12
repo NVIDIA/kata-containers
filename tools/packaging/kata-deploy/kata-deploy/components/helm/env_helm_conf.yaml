@@ -22,3 +22,7 @@ spec:
             value: "{{ .Values.kataDeploy.createDefaultRuntimeClass }}"
           - name: ALLOWED_HYPERVISOR_ANNOTATIONS
             value: "{{ .Values.kataDeploy.allowedHypervisorAnnotations }}"
+          - name: CONTAINERD_DROP_IN_CONF
+            value: "{{ .Values.kataDeploy.containerdDropInConf }}"
+          - name: SHIMS
+            value: "{{ .Values.kataDeploy.shims }}"

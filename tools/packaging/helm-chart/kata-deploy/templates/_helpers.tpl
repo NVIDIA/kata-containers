@@ -10,6 +10,8 @@ Set the correct containerd conf path depending on the k8s distribution
  /var/lib/rancher/k3s/agent/etc/containerd/
 {{- else if eq .k8sDistribution "k0s" -}}
 /etc/k0s/containerd.d/
+{{- else if eq .k8sDistribution "BCM" -}}
+/cm/local/apps/containerd/var/etc/conf.d/
 {{- end -}}
 {{- end -}}
 

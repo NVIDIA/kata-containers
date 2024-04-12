@@ -28,13 +28,14 @@ spec:
           value: '{{ .Values.kataDeploy.createDefaultRuntimeClass }}'
         - name: ALLOWED_HYPERVISOR_ANNOTATIONS
           value: '{{ .Values.kataDeploy.allowedHypervisorAnnotations }}'
+        - name: CONTAINERD_DROP_IN_CONF
+          value: '{{ .Values.kataDeploy.containerdDropInConf }}'
+        - name: SHIMS
+          value: '{{ .Values.kataDeploy.shims }}'
         - name: NODE_NAME
           valueFrom:
             fieldRef:
               fieldPath: spec.nodeName
-        - name: SHIMS
-          value: clh cloud-hypervisor dragonball fc qemu qemu-nvidia-gpu qemu-sev
-            qemu-snp qemu-tdx stratovirt
         - name: SNAPSHOTTER_HANDLER_MAPPING
           value: ""
         - name: AGENT_HTTPS_PROXY
