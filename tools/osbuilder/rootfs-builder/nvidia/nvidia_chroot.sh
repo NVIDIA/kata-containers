@@ -90,8 +90,8 @@ create_udev_rule()
 
 	# If the difference is greater than or equal to wait_time, execute the target script
 	if [ "$time_diff" -ge "$wait_time" ]; then
-	        nvidia_container_toolkit
 		nvidia_persistenced
+	        nvidia_container_toolkit
 	fi
 	CHROOT_EOF
 
