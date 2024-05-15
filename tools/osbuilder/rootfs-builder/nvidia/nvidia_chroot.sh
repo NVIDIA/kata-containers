@@ -91,7 +91,6 @@ create_udev_rule()
 	# If the difference is greater than or equal to wait_time, execute the target script
 	if [ "$time_diff" -ge "$wait_time" ]; then
 	        nvidia_container_toolkit
-		nvidia_persistenced
 	fi
 	CHROOT_EOF
 
@@ -359,7 +358,7 @@ prepare_distribution_drivers()
 	# Latest and greatest
 	export driver_version=$(apt-cache search --names-only 'nvidia-headless-no-dkms-.?.?.?-server-open' | awk '{ print $1 }' | tail -n 1 | cut -d'-' -f5)
 	# Long term support
-	#export driver_version="550"
+	#export driver_version="535"
 	
 	echo "chroot: Prepare NVIDIA distribution drivers"
 	eval "${APT_INSTALL}" nvidia-headless-no-dkms-"${driver_version}-server${driver_type}" nvidia-utils-"${driver_version}"-server
