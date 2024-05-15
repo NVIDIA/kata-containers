@@ -251,6 +251,9 @@ nvidia_persistenced() {
 
 nvidia_container_toolkit() {
 	nvidia-ctk system create-device-nodes --control-devices --load-kernel-modules
+	
+	nvidia_persistenced
+
 	nvidia-ctk cdi generate --output=/var/run/cdi/nvidia.json
 	nvidia-ctk cdi generate --mode=management --vendor=management.nvidia.com --output=/var/run/cdi/management.nvidia.yaml
 }
