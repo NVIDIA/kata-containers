@@ -376,11 +376,11 @@ impl AgentService {
 
         // kill nvidia-persistenced process in the VM
         info!(sl(), "##### kill $(pidof nvidia-persistenced)");
-        let _ = Command::new("kill")
-            .arg("$(pidof nvidia-persistenced)")
+        let _ = Command::new("touch")
+            .arg("/tmp/.container.remove")
             .stdout(Stdio::null())
             .stderr(Stdio::null())
-            .status(); 
+            .status();
         
         remove_container_resources(&mut *self.sandbox.lock().await, &cid).await
     }
@@ -557,6 +557,13 @@ impl AgentService {
             while exit_rx.changed().await.is_ok() {}
             info!(sl(), "cid {} eid {} received exit signal", &cid, &eid);
         }
+        // kill nvidia-persistenced process in the VM
+        info!(sl(), "##### touch exit file");
+        let _ = Command::new("touch")
+            .arg("/tmp/.container.exit")
+            .stdout(Stdio::null())
+            .stderr(Stdio::null())
+            .status();
 
         let mut sandbox = self.sandbox.lock().await;
         let ctr = sandbox

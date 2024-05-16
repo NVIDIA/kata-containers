@@ -91,14 +91,43 @@ create_udev_rule()
 	# If the difference is greater than or equal to wait_time, execute the target script
 	if [ "$time_diff" -ge "$wait_time" ]; then
 	        nvidia_container_toolkit
+		/bin/exit_watch.sh &
 	fi
+	CHROOT_EOF
+
+	cat <<-'CHROOT_EOF' > /bin/hotunplug_detected.sh
+	#!/bin/bash -x 
+
+	exec &>> /tmp/hotunplug_detected.log
+	PD_PID=$(pidof nvidia-persistenced)
+	if [ ! -z "${PD_PID}" ]; then
+		echo "hot unplug: kill ${PD_PID}"
+		while kill -9 ${PD_PID}; do
+			sleep 1
+		done
+	fi
+	CHROOT_EOF
+
+	cat <<-'CHROOT_EOF' > /bin/exit_watch.sh
+	#!/bin/bash -x 
+
+	exec &>> /tmp/exit_watch.log
+	while [ ! -f /tmp/.container.exit ]; do
+		sleep 2
+	done
+	/bin/hotunplug_detected.sh
 	CHROOT_EOF
 
 	chmod +x /bin/hotplug_detected.sh
 	chmod +x /bin/check_hotplug_activity.sh
+	chmod +x /bin/hotunplug_detected.sh
+	chmod +x /bin/exit_watch.sh
 
 	cat <<-'CHROOT_EOF' > /etc/udev/rules.d/99-nvidia.rules
-	SUBSYSTEM=="pci", ATTRS{vendor}=="0x10de", DRIVER=="nvidia", RUN+="/bin/hotplug_detected.sh"
+	SUBSYSTEM=="pci", ACTION=="add", ATTRS{vendor}=="0x10de", DRIVER=="nvidia", RUN+="/bin/hotplug_detected.sh"
+	SUBSYSTEM=="pci", ACTION=="bind", ATTRS{vendor}=="0x10de", DRIVER=="nvidia", RUN+="/bin/hotplug_detected.sh"
+	SUBSYSTEM=="pci", ACTION=="remove", RUN+="/bin/hotunplug_detected.sh"
+	SUBSYSTEM=="pci", ACTION=="unbind", DRIVER=="nvidia", RUN+="/bin/hotunplug_detected.sh"
 	CHROOT_EOF
 }
 
