@@ -371,17 +371,6 @@ impl AgentService {
         tokio::time::timeout(to, handle)
             .await
             .map_err(|_| anyhow!(nix::Error::ETIME))???;
-
-
-
-        // kill nvidia-persistenced process in the VM
-        info!(sl(), "##### kill $(pidof nvidia-persistenced)");
-        let _ = Command::new("kill")
-            .arg("$(pidof nvidia-persistenced)")
-            .stdout(Stdio::null())
-            .stderr(Stdio::null())
-            .status(); 
-        
         remove_container_resources(&mut *self.sandbox.lock().await, &cid).await
     }
 
