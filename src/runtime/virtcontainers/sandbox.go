@@ -700,7 +700,7 @@ func (s *Sandbox) coldOrHotPlugVFIO(sandboxConfig *SandboxConfig) (bool, error) 
 		// PCIe root ports to reserve for the hypervisor.
 		// A single_container type will have the CDI devices injected
 		// only do this if we're a pod_sandbox type.
-		if container.Annotations["io.katacontainers.pkg.oci.container_type"] == "pod_sandbox" {
+		if container.Annotations["io.katacontainers.pkg.oci.container_type"] == "pod_sandbox" && container.CustomSpec != nil {
 			cdiSpec := container.CustomSpec
 			// We can provide additional directories where to search for
 			// CDI specs if needed. immutable OS's only have specific
