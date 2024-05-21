@@ -142,6 +142,20 @@ func (device *VFIODevice) Detach(ctx context.Context, devReceiver api.DeviceRece
 		deviceLogger().WithError(err).Error("Failed to remove device")
 		return err
 	}
+	for _, vfio := range device.VfioDevs {
+		if vfio.IsPCIe {
+			for ix, val := range config.PCIeDevicesPerPort[vfio.Port] {
+				if val.HostPath == vfio.HostPath {
+					config.PCIeDevicesPerPort[vfio.Port] = append(config.PCIeDevicesPerPort[vfio.Port][:ix], config.PCIeDevicesPerPort[vfio.Port][ix+1:]...)
+					deviceLogger().WithFields(logrus.Fields{
+						"device-group": device.DeviceInfo.HostPath,
+						"device-type":  "vfio-passthrough",
+					}).Info("detach: vinfo deleted")
+					break
+				}
+			}
+		}
+	}
 
 	deviceLogger().WithFields(logrus.Fields{
 		"device-group": device.DeviceInfo.HostPath,
