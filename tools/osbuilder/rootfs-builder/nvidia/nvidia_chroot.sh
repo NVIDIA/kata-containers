@@ -98,7 +98,8 @@ create_udev_rule()
 	chmod +x /bin/check_hotplug_activity.sh
 
 	cat <<-'CHROOT_EOF' > /etc/udev/rules.d/99-nvidia.rules
-	SUBSYSTEM=="pci", ATTRS{vendor}=="0x10de", DRIVER=="nvidia", RUN+="/bin/hotplug_detected.sh"
+	SUBSYSTEM=="pci", ACTION=="add", ATTRS{vendor}=="0x10de", DRIVER=="nvidia", RUN+="/bin/hotplug_detected.sh"
+	SUBSYSTEM=="pci", ACTION=="bind", ATTRS{vendor}=="0x10de", DRIVER=="nvidia", RUN+="/bin/hotplug_detected.sh"
 	CHROOT_EOF
 }
 

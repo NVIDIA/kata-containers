@@ -234,6 +234,8 @@ nvidia_persistenced() {
 	#mkdir /var/run/nvidia-persistenced
 	#chown nobody:nogroup /var/run/nvidia-persistenced
 	#nvidia-persistenced -u nobody -g nogroup
+	echo "Skipping nvidia-persistenced until hotplug supported"
+	return 0
 
 	if [ "${uvm_persistence_mode}" == "${UVM_PERISTENCE_MODE_ENABLED}" ]; then
 		echo "nvidia: enabling uvm persistence mode"
