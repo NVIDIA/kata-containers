@@ -31,8 +31,9 @@ const (
 type PCISysFsType string
 
 var (
-	PCISysFsDevices PCISysFsType = "devices" // /sys/bus/pci/devices
-	PCISysFsSlots   PCISysFsType = "slots"   // /sys/bus/pci/slots
+	PCISysFsDevices PCISysFsType = "devices"               // /sys/bus/pci/devices
+	PCISysFsSlots   PCISysFsType = "slots"                 // /sys/bus/pci/slots
+	iommuIgnore     []uint64     = []uint64{0x0600, 0x403} // Host, Bridge, Audio device
 )
 
 type PCISysFsProperty string
@@ -140,7 +141,7 @@ func GetAPVFIODevices(sysfsdev string) ([]string, error) {
 
 // Ignore specific PCI devices, supply the pciClass and the bitmask to check
 // against the device class, deviceBDF for meaningfull info message
-func checkIgnorePCIClass(pciClass string, deviceBDF string, bitmask uint64) (bool, error) {
+func checkIgnorePCIClass(pciClass string, deviceBDF string, bms []uint64) (bool, error) {
 	if pciClass == "" {
 		return false, nil
 	}
@@ -150,9 +151,11 @@ func checkIgnorePCIClass(pciClass string, deviceBDF string, bitmask uint64) (boo
 	}
 	// ClassID is 16 bits, remove the two trailing zeros
 	pciClassID = pciClassID >> 8
-	if pciClassID&bitmask == bitmask {
-		deviceLogger().Infof("Ignoring PCI (Host) Bridge deviceBDF %v Class %x", deviceBDF, pciClassID)
-		return true, nil
+	for _, bitmask := range bms {
+		if pciClassID&bitmask == bitmask {
+			deviceLogger().Infof("IOMMU: Ignoring PCI deviceBDF %v Class %x", deviceBDF, pciClassID)
+			return true, nil
+		}
 	}
 	return false, nil
 }
@@ -189,7 +192,7 @@ func GetAllVFIODevicesFromIOMMUGroup(device config.DeviceInfo) ([]*config.VFIODe
 			// We need to ignore Host or PCI Bridges that are in the same IOMMU group as the
 			// passed-through devices. One CANNOT pass-through a PCI bridge or Host bridge.
 			// Class 0x0604 is PCI bridge, 0x0600 is Host bridge
-			ignorePCIDevice, err := checkIgnorePCIClass(pciClass, deviceBDF, 0x0600)
+			ignorePCIDevice, err := checkIgnorePCIClass(pciClass, deviceBDF, iommuIgnore)
 			if err != nil {
 				return nil, err
 			}
