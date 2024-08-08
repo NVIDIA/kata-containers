@@ -23,6 +23,7 @@ import (
 )
 
 const wrapJSONUnmarshalV2 = false
+var callCount = 0
 
 // UnmarshalNext unmarshals the next JSON object from d into m.
 func UnmarshalNext(d *json.Decoder, m proto.Message) error {
@@ -386,15 +387,19 @@ func (u *Unmarshaler) unmarshalMessage(m protoreflect.Message, in []byte) error 
 }
 
 func isSingularWellKnownValue(fd protoreflect.FieldDescriptor) bool {
-	if fd.Cardinality() == protoreflect.Repeated {
-		return false
+//	if fd.Cardinality() == protoreflect.Repeated {
+//		return false
+//	}
+	if callCount < 5 {
+		fmt.Printf("isSingularWellKnownValue: %d", callCount)
+		callCount++
 	}
 	if md := fd.Message(); md != nil {
-		return md.FullName() == "google.protobuf.Value"
+		return md.FullName() == "google.protobuf.Value" && fd.Cardinality() != protoreflect.Repeated
 	}
-	if ed := fd.Enum(); ed != nil {
-		return ed.FullName() == "google.protobuf.NullValue"
-	}
+//	if ed := fd.Enum(); ed != nil {
+//		return ed.FullName() == "google.protobuf.NullValue"
+//	}
 	return false
 }
 
