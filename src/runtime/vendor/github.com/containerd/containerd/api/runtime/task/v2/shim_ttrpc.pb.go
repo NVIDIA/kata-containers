@@ -6,7 +6,6 @@ import (
 	context "context"
 	ttrpc "github.com/containerd/ttrpc"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
-	"github.com/sirupsen/logrus"
 )
 
 type TaskService interface {
@@ -41,7 +40,6 @@ func RegisterTaskService(srv *ttrpc.Server, svc TaskService) {
 			},
 			"Create": func(ctx context.Context, unmarshal func(interface{}) error) (interface{}, error) {
 				var req CreateTaskRequest
-				logrus.Infof("################# Create Task Request: %+v", ctx)
 				if err := unmarshal(&req); err != nil {
 					return nil, err
 				}
@@ -175,9 +173,6 @@ func (c *taskClient) State(ctx context.Context, req *StateRequest) (*StateRespon
 }
 
 func (c *taskClient) Create(ctx context.Context, req *CreateTaskRequest) (*CreateTaskResponse, error) {
-
-	logrus.Infof("################# Create Task Request: %+v", ctx)
-
 	var resp CreateTaskResponse
 	if err := c.client.Call(ctx, "containerd.task.v2.Task", "Create", req, &resp); err != nil {
 		return nil, err
