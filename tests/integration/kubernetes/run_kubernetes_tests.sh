@@ -53,6 +53,8 @@ else
 		"k8s-pod-quota.bats" \
 		"k8s-policy-job.bats" \
 		"k8s-policy-set-keys.bats" \
+		"k8s-policy-pod.bats" \
+		"k8s-policy-rc.bats" \
 		"k8s-port-forward.bats" \
 		"k8s-projected-volume.bats" \
 		"k8s-qos-pods.bats" \
