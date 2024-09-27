@@ -20,6 +20,8 @@ export driver_type="-open"
 export supported_gpu_devids="/supported-gpu.devids"
 
 APT_INSTALL="apt -o Dpkg::Options::='--force-confdef' -o Dpkg::Options::='--force-confold' -yqq --no-install-recommends install"
+# Need to override this because ubuntu incorrectly picks 90.12
+NSCQ_VERSION="550.90.07-0ubuntu0.22.04.1"
 
 set_arch() {
 	if [[ ${arch_target} == x86_64 ]]; then
@@ -114,7 +116,12 @@ cleanup_rootfs()
 			nvidia-compute-utils-"${driver_version}"-server \
 			nvidia-utils-"${driver_version}-server"         \
 			nvidia-kernel-common-"${driver_version}"-server \
-			libnvidia-compute-"${driver_version}"-server   
+			libnvidia-compute-"${driver_version}"-server    \
+			libnvidia-gl-"${driver_version}"-server         \
+			libnvidia-extra-"${driver_version}"-server      \
+			libnvidia-decode-"${driver_version}"-server     \
+			libnvidia-fbc1-"${driver_version}"-server       \
+			libnvidia-encode-"${driver_version}"-server
 	fi
 
 	kernel_headers=$(dpkg --get-selections | cut -f1 | grep linux-headers)
@@ -150,17 +157,6 @@ cleanup_rootfs()
 	rm -rf /etc/apt/sources.list* /var/lib/apt /var/log/apt /var/cache/debconf
 	rm -f /usr/bin/nvidia-ngx-updater /usr/bin/nvidia-container-runtime
 	rm -f /var/log/{nvidia-installer.log,dpkg.log,alternatives.log}
-
-
-	if [ -e /usr/share/nvidia ]; then 
-		mv /usr/share/nvidia /root/usr_share_nvidia
-	fi 
-
-	rm -rf /usr/share/*
-
-	if [ -e /root/usr_share_nvidia ]; then 
-		mv /root/usr_share_nvidia /usr/share/nvidia
-	fi 
 
 
 	# Clear and regenerate the ld cache
@@ -362,7 +358,15 @@ prepare_distribution_drivers()
 	#export driver_version="535"
 	
 	echo "chroot: Prepare NVIDIA distribution drivers"
-	eval "${APT_INSTALL}" nvidia-headless-no-dkms-"${driver_version}-server${driver_type}" nvidia-utils-"${driver_version}"-server
+	eval "${APT_INSTALL}" nvidia-driver-"${driver_version}-server" nvidia-utils-"${driver_version}"-server libnvidia-gl-"${driver_version}"-server libnvidia-extra-"${driver_version}"-server libnvidia-decode-"${driver_version}"-server libnvidia-fbc1-"${driver_version}"-server libnvidia-encode-"${driver_version}"-server
+
+	if [ -z "$NSCQ_VERSION" ]; then
+	  eval "${APT_INSTALL}" libnvidia-nscq-"${driver_version}"
+	else
+	  echo "Override libnvidia-nscq version to $NSCQ_VERSION"
+	  eval "${APT_INSTALL}" libnvidia-nscq-"${driver_version}"="${NSCQ_VERSION}"
+	fi
+
 }
 
 prepare_nvidia_drivers() 
