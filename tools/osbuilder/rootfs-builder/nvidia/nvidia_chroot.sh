@@ -524,32 +524,34 @@ OBSOLETE_install_nvidia_nvtrust_tools()
 	popd >> /dev/null	
 }
 
-#install_go () {
+install_go () {
 	#https://go.dev/dl/go1.21.5.linux-amd64.tar.gz
 
-#	TDIR="/root/${FUNCNAME[0]}"
+	TDIR="/root/${FUNCNAME[0]}"
 
-#	mkdir $TDIR
+	mkdir $TDIR
 
-#	VERSION="1.21.5"
-#	PACKAGE="go${VERSION}.linux-${ARCH}.tar.gz"
+	VERSION="1.21.5"
+	PACKAGE="go${VERSION}.linux-${ARCH}.tar.gz"
 
-#	pushd "${TDIR}" || exit 1
+	pushd "${TDIR}" || exit 1
 
-#	if [[ ! -e ${PACKAGE} ]]; then
-#		wget https://go.dev/dl/${PACKAGE}
-#	fi
+	if [[ ! -e ${PACKAGE} ]]; then
+		wget https://go.dev/dl/${PACKAGE}
+	fi
 
-#	rm -rf /usr/local/go && tar -C /usr/local -xzf "${PACKAGE}"
+	rm -rf /usr/local/go && tar -C /usr/local -xzf "${PACKAGE}"
 	
-#	export GOROOT=$(/usr/local/go/bin/go env GOROOT)
-#	export GOPATH=${HOME}/go
-#	export PATH=${GOPATH}/bin:${GOROOT}/bin:${PATH}
+	export GOROOT=$(/usr/local/go/bin/go env GOROOT)
+	export GOPATH=${HOME}/go
+	export PATH=${GOPATH}/bin:${GOROOT}/bin:${PATH}
 
-#	ln -sf $GOROOT/bin/go /usr/local/bin/.
+	ln -sf $GOROOT/bin/go /usr/local/bin/.
 
-#	popd || exit 1
-#}
+	popd || exit 1
+
+	rm -rf $TDIR
+}
 
 install_nvidia_dcgm_exporter() 
 {		
@@ -619,6 +621,7 @@ install_nvidia_dcgm()
 }
 
 
+
 # Start of script
 echo "chroot: Setup NVIDIA GPU rootfs"
 
@@ -640,8 +643,11 @@ install_nvidia_ctk
 #log_time install_nvidia_verifier_hook
 #log_time install_nvidia_nvtrust_tools
 export_driver_version
-#time { install_nvidia_dcgm_exporter
+
 install_nvidia_dcgm
+install_nvidia_dcgm_exporter
+
+install_dcgm_exporter
 create_udev_rule
 cleanup_rootfs
 
