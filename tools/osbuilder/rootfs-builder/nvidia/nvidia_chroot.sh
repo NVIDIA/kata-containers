@@ -600,6 +600,25 @@ export_driver_version() {
        done
 }
 
+install_nvidia_dcgm()
+{
+	curl -O https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2004/x86_64/cuda-keyring_1.0-1_all.deb
+	dpkg -i cuda-keyring_1.0-1_all.deb && rm -f cuda-keyring_1.0-1_all.deb
+
+	if [ "${arch_target}" == "aarch64" ]; then
+		cat <<-'CHROOT_EOF' > /etc/apt/sources.list.d/cuda.list
+			deb [signed-by=/usr/share/keyrings/cuda-archive-keyring.gpg] https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2204/arm64/ /
+		CHROOT_EOF
+	else
+		cat <<-'CHROOT_EOF' > /etc/apt/sources.list.d/cuda.list
+			deb [signed-by=/usr/share/keyrings/cuda-archive-keyring.gpg] https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2204/x86_64/ /
+		CHROOT_EOF
+	fi
+	apt update
+	eval "${APT_INSTALL}" datacenter-gpu-manager
+}
+
+
 # Start of script
 echo "chroot: Setup NVIDIA GPU rootfs"
 
@@ -622,6 +641,7 @@ install_nvidia_ctk
 #log_time install_nvidia_nvtrust_tools
 export_driver_version
 #time { install_nvidia_dcgm_exporter
+install_nvidia_dcgm
 create_udev_rule
 cleanup_rootfs
 
