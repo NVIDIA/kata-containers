@@ -254,7 +254,7 @@ nvidia_persistenced() {
 perform_cdi_edits() {
 	cat <<-'VDPAU_EOF' > /tmp/cdi_vdpau_mount
 { 
-        "hostPath": "/usr/lib/x86_64-linux-gnu/vdpau/libvdpau_nvidia.so.550.90.07",
+        "hostPath": "/usr/lib/x86_64-linux-gnu/vdpau/libvdpau_nvidia.so.550.127.05",
         "containerPath": "/usr/lib/x86_64-linux-gnu/vdpau/libvdpau_nvidia.so",
         "options": [
           "ro",
