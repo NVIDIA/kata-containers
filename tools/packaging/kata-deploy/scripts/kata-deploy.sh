@@ -305,10 +305,6 @@ function cleanup_different_shims_base() {
 
 	rm  -f "${default_shim_file}"
 	restore_shim "${default_shim_file}"
-
-	if [[ "${CREATE_RUNTIMECLASSES}" == "true" ]]; then
-		delete_runtimeclasses
-	fi
 }
 
 function configure_crio_runtime() {
@@ -607,11 +603,18 @@ EOF
 			configure_cri_runtime "$runtime"
 			kubectl label node "$NODE_NAME" --overwrite katacontainers.io/kata-runtime=true
 			;;
-		cleanup)
+		node-cleanup)
 			cleanup_cri_runtime "$runtime"
-			kubectl label node "$NODE_NAME" --overwrite katacontainers.io/kata-runtime=cleanup
 			remove_artifacts
+			kubectl label node "$NODE_NAME" --overwrite katacontainers.io/kata-runtime=cleanup || true
 			return 0
+			;;
+		cluster-cleanup)
+			kubectl label node -l katacontainers.io/kata-runtime --overwrite katacontainers.io/kata-runtime=cleanup
+			if [[ "${CREATE_RUNTIMECLASSES}" == "true" ]]; then
+				delete_runtimeclasses || true
+			fi
+			exit 0
 			;;
 		reset)
 			reset_runtime $runtime

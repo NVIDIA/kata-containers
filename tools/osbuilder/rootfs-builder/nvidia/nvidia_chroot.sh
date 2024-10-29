@@ -21,7 +21,7 @@ export supported_gpu_devids="/supported-gpu.devids"
 
 APT_INSTALL="apt -o Dpkg::Options::='--force-confdef' -o Dpkg::Options::='--force-confold' -yqq --no-install-recommends install"
 # Need to override this because ubuntu incorrectly picks 90.12
-NSCQ_VERSION="550.90.07-0ubuntu0.22.04.1"
+#NSCQ_VERSION="550.90.07-0ubuntu0.22.04.1"
 
 set_arch() {
 	if [[ ${arch_target} == x86_64 ]]; then
