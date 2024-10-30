@@ -56,7 +56,7 @@ spec:
               command:
               - bash
               - -c
-              - /opt/kata-artifacts/scripts/kata-deploy.sh cleanup
+              - /opt/kata-artifacts/scripts/kata-deploy.sh node-cleanup
         name: kube-kata
         securityContext:
           privileged: true

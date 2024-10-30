@@ -28,7 +28,7 @@ spec:
       - command:
         - bash
         - -c
-        - /opt/kata-artifacts/scripts/kata-deploy.sh cleanup
+        - /opt/kata-artifacts/scripts/kata-deploy.sh cluster-cleanup
         env:
         - name: DEBUG
           value: '{{ .Values.kataDeploy.debug }}'
