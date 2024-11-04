@@ -290,6 +290,8 @@ nvidia_container_toolkit() {
 	nvidia-ctk cdi generate --output=/var/run/cdi/nvidia.json
 	perform_cdi_edits
 	nvidia-ctk cdi generate --mode=management --vendor=management.nvidia.com --output=/var/run/cdi/management.nvidia.yaml
+	nv-hostengine --service-account nvidia-dcgm --home-dir /tmp
+	dcgm-exporter &
 }
 
 OBSOLETE_nvidia_verifier_hook() {
