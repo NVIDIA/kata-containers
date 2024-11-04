@@ -30,6 +30,8 @@ fi
 # TODO setting the GPU in ready mode till KBS has GPU suport
 nvidia-smi conf-compute -srs 1
 
+# watch for hotunplug events reported by dmesg
+/bin/hotunplug_monitor.sh &
 # Setting AGENT_INIT to yes will make the agent the init process
 # set the limits here as these are inherited by the containers
 prlimit --pid  $$ --nofile=1048576:1048576
