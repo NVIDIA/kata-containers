@@ -105,6 +105,142 @@ create_udev_rule()
 	CHROOT_EOF
 }
 
+create_svc_common()
+{
+	cat <<-'CHROOT_EOF' > /svc-common.sh
+        # description: common functions for svc
+        PATH=/bin:/usr/bin:/sbin:/usr/sbin
+        # set the following for your svc before including this file
+        #DAEMON=/bin/<my-command>
+        #NAME=<service-name>
+        #DESC="service description"
+        #PIDFILE=/run/<my-svc>.pid
+        #DAEMON_OPTS=<cmd args>
+        #START_OPTS=<--background -m>
+
+        [ -x "$DAEMON" ] || exit 0
+
+        . /lib/lsb/init-functions
+
+        start() {
+            if $0 status > /dev/null ; then
+                log_success_msg "$NAME is already running"
+            else
+                log_daemon_msg "Starting $DESC" "$NAME"
+                start-stop-daemon --start --quiet $START_OPTS --pidfile $PIDFILE --exec $DAEMON -- $DAEMON_OPTS
+                log_end_msg $?
+            fi
+        }
+
+        stop() {
+            log_daemon_msg "Stopping $DESC" "$NAME"
+            start-stop-daemon --stop --quiet --oknodo --pidfile $PIDFILE --exec $DAEMON
+            log_end_msg $?
+        }
+
+        case "$1" in
+            start)
+               start
+               ;;
+            stop)
+               stop
+               ;;
+            restart)
+               stop
+               sleep 1
+               start
+               ;;
+            status)
+               status_of_proc -p $PIDFILE "$DAEMON" "$NAME" && exit 0 || exit $?
+               ;;
+            *)
+               echo "Usage: $0 {start|stop|status|restart}"
+        esac
+        exit 0
+	CHROOT_EOF
+
+}
+
+create_persistenced_svc()
+{
+	cat <<-'CHROOT_EOF' > /etc/init.d/persistenced
+        #!/bin/bash
+        # description: nvidia-persistenced service
+        DAEMON=/usr/bin/nvidia-persistenced
+        NAME="persistenced"
+        DESC="persistenced daemon"
+        PIDFILE=/run/nvidia-persistenced/nvidia-persistenced.pid
+        DAEMON_OPTS=--uvm-persistence-mode
+        START_OPTS=
+        . /svc-common.sh
+	CHROOT_EOF
+
+	chmod +x /etc/init.d/persistenced
+}
+
+create_hostengine_svc()
+{
+	cat <<-'CHROOT_EOF' > /etc/init.d/hostengine
+        #!/bin/bash
+        # description: nv-hostengine service
+        DAEMON=/bin/nv-hostengine
+        NAME="hostengine"
+        DESC="hostengine daemon"
+        PIDFILE=/run/hostengine.pid
+        DAEMON_OPTS=--no-daemon
+        START_OPTS="--background --make-pidfile"
+        . /svc-common.sh
+	CHROOT_EOF
+
+	chmod +x /etc/init.d/hostengine
+}
+
+create_dcgm_exporter_svc()
+{
+	cat <<-'CHROOT_EOF' > /etc/init.d/dcgmexporter
+        #!/bin/bash
+        # description: dcgmexporter service
+        DAEMON=/bin/dcgm-exporter
+        NAME="dcgmexporter --background"
+        DESC="dcgmexporter daemon"
+        PIDFILE=/run/dcgmexporter.pid
+        DAEMON_OPTS="--address 0.0.0.0:9400"
+        START_OPTS="--background --make-pidfile"
+        . /svc-common.sh
+	CHROOT_EOF
+
+	chmod +x /etc/init.d/dcgmexporter
+}
+
+create_nvidia_services()
+{
+        create_svc_common
+        create_persistenced_svc
+        create_hostengine_svc
+        create_dcgm_exporter_svc
+}
+
+# For gpu hot unplug to complete, we need to stop all services holding a
+# handle to the driver. This is a workaround to accomplish that using
+# dmesg as the event, until we have a proper solution.
+create_unplug_monitor()
+{
+	set -x
+
+	cat <<-'CHROOT_EOF' > /bin/hotunplug_monitor.sh
+        #!/bin/bash
+        . /nvidia_init_functions
+        exec &>> /tmp/hotunplug_monitor.log
+        dmesg --follow | while read -r line; do
+          if [[ $line == *NVRM:\ Attempting\ to\ remove\ device* ]]; then
+            restart_nvidia_svcs 3
+          fi
+        done
+	CHROOT_EOF
+
+	chmod +x /bin/hotunplug_monitor.sh
+}
+
 cleanup_rootfs() 
 {
 	echo "chroot: Cleanup NVIDIA GPU rootfs"
@@ -647,7 +783,8 @@ export_driver_version
 install_nvidia_dcgm
 install_nvidia_dcgm_exporter
 
-install_dcgm_exporter
 create_udev_rule
+create_nvidia_services
+create_unplug_monitor
 cleanup_rootfs
 

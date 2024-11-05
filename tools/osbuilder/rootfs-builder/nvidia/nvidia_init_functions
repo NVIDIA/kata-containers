@@ -152,6 +152,50 @@ nvidia_udev_setup() {
 	/etc/init.d/udev start
 }
 
+mutex_lock_dir() {
+        while ! $(mkdir /tmp/$1 >&/dev/NULL); do
+                PID=$(cat /tmp/$1/pid) || true
+                echo "waiting for $PID"
+                sleep 1
+        done
+        echo "$$" > /tmp/$1/pid
+}
+
+mutex_unlock_dir() {
+        PID=$(cat /tmp/$1/pid) || true
+        if [[ "$PID" != "$$" ]]; then
+                echo "WARNING: lock held by $PID, unlocked by $$"
+        fi
+        rm -rf /tmp/$1
+}
+
+get_cmdline_var() {
+	if cat /proc/cmdline | grep "$1=" >/dev/null; then
+		echo "$(cat /proc/cmdline | sed -e "s/^.*$1=//" -e 's/ .*$//')"
+	else
+		echo ""
+	fi
+}
+
+restart_nvidia_svcs() {
+	DISABLE_NVIDIA_SVCS=$(get_cmdline_var disable_nvidia_svcs)
+	if [[ "$DISABLE_NVIDIA_SVCS" == "true" ]]; then
+                echo "disable_nvidia_svcs set to $DISABLE_NVIDIA_SVCS"
+                echo "Ignoring restart_nvidia_svcs"
+		return 0
+	fi
+        mutex_lock_dir hotplug.lck
+        service dcgmexporter stop || true
+        service persistenced stop || true
+        service hostengine stop || true
+        sleep $1
+        service persistenced start || true
+        service hostengine start || true
+        service dcgmexporter start || true
+        echo "restarted services"
+        mutex_unlock_dir hotplug.lck
+}
+
 # We need to know if we're running on AMD or Intel CPUs, rename it to amd or intel
 nvidia_query_cpu_vendor() {
 	local cpu_vendor_file="/proc/cpuinfo"
@@ -290,8 +334,7 @@ nvidia_container_toolkit() {
 	nvidia-ctk cdi generate --output=/var/run/cdi/nvidia.json
 	perform_cdi_edits
 	nvidia-ctk cdi generate --mode=management --vendor=management.nvidia.com --output=/var/run/cdi/management.nvidia.yaml
-	nv-hostengine --service-account nvidia-dcgm --home-dir /tmp
-	dcgm-exporter &
+	restart_nvidia_svcs 1
 }
 
 OBSOLETE_nvidia_verifier_hook() {
