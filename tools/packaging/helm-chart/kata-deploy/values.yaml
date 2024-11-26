@@ -20,3 +20,4 @@ kataDeploy:
   allowedHypervisorAnnotations: ""
   containerdDropInConf: ""
   installPrefix: "/usr/local/bin"
+  updateStrategy: onDelete

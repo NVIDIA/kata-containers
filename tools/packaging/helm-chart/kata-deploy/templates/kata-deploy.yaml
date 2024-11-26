@@ -86,6 +86,4 @@ spec:
           path: /usr/local/bin/
         name: local-bin
   updateStrategy:
-    rollingUpdate:
-      maxUnavailable: 1
-    type: RollingUpdate
+    type: '{{ .Values.kataDeploy.updateStrategy }}'
