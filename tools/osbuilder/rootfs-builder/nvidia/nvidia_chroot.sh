@@ -266,7 +266,7 @@ cleanup_rootfs()
 		apt purge -yqq "${i}"
 	done
 
-	apt purge -yqq make gcc wget libc6-dev git xz-utils curl gpg \
+	apt purge -yqq jq make gcc wget libc6-dev git xz-utils curl gpg \
 		python3-pip software-properties-common ca-certificates  \
 		linux-libc-dev nuitka python3-minimal
 		
@@ -540,7 +540,6 @@ install_build_dependencies()
 {
 	echo "chroot: Install NVIDIA drivers build dependencies"
 	eval "${APT_INSTALL}" make gcc kmod libvulkan1 pciutils jq 
-        apt-mark hold jq
 }
 
 setup_apt_repositories() 
