@@ -20,4 +20,5 @@ kataDeploy:
   allowedHypervisorAnnotations: ""
   containerdDropInConf: ""
   installPrefix: "/usr/local/bin"
-  updateStrategy: onDelete
+  updateStrategy: OnDelete
+kataGpuFeatureDiscovery: true

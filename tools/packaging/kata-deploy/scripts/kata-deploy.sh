@@ -602,6 +602,9 @@ EOF
 			install_artifacts
 			configure_cri_runtime "$runtime"
 			kubectl label node "$NODE_NAME" --overwrite katacontainers.io/kata-runtime=true
+			if [ "$SETUP_GPU_FEATURE_DISCOVERY" == "true" ]; then
+				kubectl label node "$NODE_NAME" --overwrite katacontainers.io/gpu-feature-discovery=required
+			fi
 			;;
 		node-cleanup)
 			cleanup_cri_runtime "$runtime"

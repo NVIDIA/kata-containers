@@ -522,6 +522,7 @@ build_rootfs_distro()
 			--env HOME="/root" \
 			--env AGENT_POLICY="${AGENT_POLICY}" \
 			--env CONFIDENTIAL_GUEST="${CONFIDENTIAL_GUEST}" \
+			--env NVIDIA_DRIVER_VERSION="${NVIDIA_DRIVER_VERSION}" \
 			-v "${repo_dir}":"/kata-containers" \
 			-v "${ROOTFS_DIR}":"/rootfs" \
 			-v "${script_dir}/../scripts":"/scripts" \

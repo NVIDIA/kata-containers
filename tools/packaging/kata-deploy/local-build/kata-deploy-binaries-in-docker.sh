@@ -134,6 +134,7 @@ docker run \
 	--env CROSS_BUILD="${CROSS_BUILD}" \
 	--env TARGET_ARCH="${TARGET_ARCH}" \
 	--env ARCH="${ARCH}" \
+	--env NVIDIA_DRIVER_VERSION="${NVIDIA_DRIVER_VERSION}" \
 	--rm \
 	-w ${script_dir} \
 	build-kata-deploy "${kata_deploy_create}" $@
