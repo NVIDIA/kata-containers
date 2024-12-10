@@ -295,44 +295,12 @@ nvidia_persistenced() {
 
 }
 
-perform_cdi_edits() {
-	cat <<-'VDPAU_EOF' > /tmp/cdi_vdpau_mount
-{ 
-        "hostPath": "/usr/lib/x86_64-linux-gnu/vdpau/libvdpau_nvidia.so.550.127.05",
-        "containerPath": "/usr/lib/x86_64-linux-gnu/vdpau/libvdpau_nvidia.so",
-        "options": [
-          "ro",
-          "nosuid",
-          "nodev",
-          "bind"
-        ]
-},
-VDPAU_EOF
-
-     cat <<-'LINK_EOF' > /tmp/cdi_vdpau_link
-"--link", 
-     "libvdpau_nvidia.so.1::/usr/lib/x86_64-linux-gnu/vdpau/libvdpau_nvidia.so",
-"--link", 
-     "libcuda.so.1::/usr/lib/x86_64-linux-gnu/libcuda.so",
-LINK_EOF
-
-     cat <<-'LDCACHE_EOF' > /tmp/cdi_vdpau_ldcache
-"--folder",
-     "/usr/lib/x86_64-linux-gnu/vdpau",
-LDCACHE_EOF
-
-     cat /var/run/cdi/nvidia.json | jq -r > /tmp/nvidia.json.raw
-     sed '/mounts/ r /tmp/cdi_vdpau_mount' /tmp/nvidia.json.raw | sed '/create-symlinks/ r /tmp/cdi_vdpau_link' | sed '/update-ldcache/ r /tmp/cdi_vdpau_ldcache' > /tmp/nvidia_cdi.json
-     jq -c . /tmp/nvidia_cdi.json > /var/run/cdi/nvidia.json
-}
-
 nvidia_container_toolkit() {
 	nvidia-ctk system create-device-nodes --control-devices --load-kernel-modules
 	
 	nvidia_persistenced
 
 	nvidia-ctk cdi generate --output=/var/run/cdi/nvidia.json
-	perform_cdi_edits
 	nvidia-ctk cdi generate --mode=management --vendor=management.nvidia.com --output=/var/run/cdi/management.nvidia.yaml
 	restart_nvidia_svcs 1
 }
