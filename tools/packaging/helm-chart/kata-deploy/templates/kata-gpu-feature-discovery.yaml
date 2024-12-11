@@ -61,8 +61,6 @@ spec:
           image: '{{ .Values.kataDeploy.repository }}:{{ .Values.kataDeploy.version }}'
           imagePullPolicy: '{{ .Values.kataDeploy.imagePullPolicy }}'
           name: post-process
-          securityContext:
-            privileged: true
           volumeMounts:
             - name: output-dir
               mountPath: "/etc/kubernetes/node-feature-discovery/features.d"
