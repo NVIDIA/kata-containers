@@ -122,6 +122,7 @@ var runtimeCommands = []cli.Command{
 	kataCheckCLICommand,
 	kataEnvCLICommand,
 	kataExecCLICommand,
+	kataExecBatchCLICommand,
 	kataMetricsCLICommand,
 	factoryCLICommand,
 	kataVolumeCommand,
