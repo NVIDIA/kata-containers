@@ -21,7 +21,9 @@ ifeq ($(ARCH), x86_64)
 BASE_TARBALLS = serial-targets \
 	qemu-tarball \
 	shim-v2-tarball \
-	virtiofsd-tarball
+	virtiofsd-tarball \
+	kernel-tarball \
+	rootfs-image-tarball
 BASE_SERIAL_TARBALLS = agent-opa-tarball \
 	kernel-nvidia-gpu-tarball \
 	rootfs-nvidia-gpu-initrd-tarball 

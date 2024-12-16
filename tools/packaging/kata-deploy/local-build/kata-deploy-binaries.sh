@@ -281,6 +281,11 @@ get_latest_kernel_confidential_artefact_and_builder_image_version() {
 
 #Install guest image
 install_image() {
+	# This is neabled by default in future versions
+	export AGENT_POLICY=yes
+	# Explicitly disable agent init for the image
+	export AGENT_INIT=no
+
 	local variant="${1:-}"
 
 	image_type="image"

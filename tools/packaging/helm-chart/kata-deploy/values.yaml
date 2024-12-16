@@ -13,7 +13,7 @@ kataDeploy:
   # k8s-dist can be k8s, k3s, rke2, k0s
   k8sDistribution: "k8s"
   debug: "false"
-  shims: "qemu-nvidia-gpu"
+  shims: "qemu qemu-nvidia-gpu"
   defaultShim: ""
   createRuntimeClasses: "false"
   createDefaultRuntimeClass: "false"
