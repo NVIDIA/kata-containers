@@ -14,7 +14,7 @@ export rootfs_type=$5
 
 export driver_source=""
 # For open source drivers driver_type="-open" otherwise driver_type="" 
-export driver_version=""
+export driver_version="${NVIDIA_DRIVER_VERSION}"
 export driver_source_version=""
 export driver_type="-open"
 export supported_gpu_devids="/supported-gpu.devids"
@@ -489,11 +489,13 @@ prepare_run_file_drivers()
 prepare_distribution_drivers() 
 {
 	# Latest and greatest
-	export driver_version=$(apt-cache search --names-only 'nvidia-headless-no-dkms-.?.?.?-server-open' | awk '{ print $1 }' | tail -n 1 | cut -d'-' -f5)
-	# Long term support
-	#export driver_version="535"
+	if [ -n "$driver_version" ]; then
+		echo "Using driver version $driver_version from environment"
+	else
+		export driver_version=$(apt-cache search --names-only 'nvidia-headless-no-dkms-.?.?.?-server-open' | awk '{ print $1 }' | tail -n 1 | cut -d'-' -f5)
+	fi
 	
-	echo "chroot: Prepare NVIDIA distribution drivers"
+	echo "chroot: Prepare NVIDIA distribution drivers version $driver_version"
 	eval "${APT_INSTALL}" nvidia-driver-"${driver_version}-server" nvidia-utils-"${driver_version}"-server libnvidia-gl-"${driver_version}"-server libnvidia-extra-"${driver_version}"-server libnvidia-decode-"${driver_version}"-server libnvidia-fbc1-"${driver_version}"-server libnvidia-encode-"${driver_version}"-server
 
 	if [ -z "$NSCQ_VERSION" ]; then

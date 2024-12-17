@@ -100,6 +100,7 @@ VIRTIOFSD_CONTAINER_BUILDER="${VIRTIOFSD_CONTAINER_BUILDER:-}"
 MEASURED_ROOTFS="${MEASURED_ROOTFS:-}"
 PULL_TYPE="${PULL_TYPE:-default}"
 USE_CACHE="${USE_CACHE:-}"
+NVIDIA_DRIVER_VERSION="${NVIDIA_DRIVER_VERSION:-550}"
 
 docker run \
 	-v $HOME/.docker:/root/.docker \
@@ -134,6 +135,7 @@ docker run \
 	--env CROSS_BUILD="${CROSS_BUILD}" \
 	--env TARGET_ARCH="${TARGET_ARCH}" \
 	--env ARCH="${ARCH}" \
+	--env NVIDIA_DRIVER_VERSION="${NVIDIA_DRIVER_VERSION}" \
 	--rm \
 	-w ${script_dir} \
 	build-kata-deploy "${kata_deploy_create}" $@
