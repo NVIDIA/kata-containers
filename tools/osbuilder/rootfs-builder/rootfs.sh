@@ -692,6 +692,10 @@ EOF
 			echo "I am ubuntu or debian"
 			chrony_conf_file="${ROOTFS_DIR}/etc/chrony/chrony.conf"
 			chrony_systemd_service="${ROOTFS_DIR}/lib/systemd/system/chrony.service"
+			# symnlink systemd to /sbin/init if /usr/lib/systemd/systemd exists
+			if [ -e "${ROOTFS_DIR}/usr/lib/systemd/systemd" ]; then
+				ln -sf /usr/lib/systemd/systemd "${ROOTFS_DIR}/sbin/init"
+			fi
 			;;
 		"ubuntu")
 			# Fix for #4932 - Boot hang at: "A start job is running for /dev/ttyS0"
