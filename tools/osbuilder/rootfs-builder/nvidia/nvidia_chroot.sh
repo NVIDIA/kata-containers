@@ -15,6 +15,7 @@ export rootfs_type=$5
 export driver_source=""
 # For open source drivers driver_type="-open" otherwise driver_type="" 
 export driver_version="${NVIDIA_DRIVER_VERSION}"
+export dcgm_version="${DCGM_VERSION:=3.3.9-3.6.1}"
 export driver_source_version=""
 export driver_type="-open"
 export supported_gpu_devids="/supported-gpu.devids"
@@ -703,6 +704,7 @@ install_nvidia_dcgm_exporter()
 	git clone https://github.com/NVIDIA/${dex}
 
 	cd ${dex}
+	git checkout tags/${dcgm_version}
 	make binary check-format
 
 	cp cmd/${dex}/${dex} /usr/bin/
