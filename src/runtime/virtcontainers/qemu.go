@@ -39,6 +39,7 @@ import (
 
 	"github.com/kata-containers/kata-containers/src/runtime/pkg/device/config"
 	"github.com/kata-containers/kata-containers/src/runtime/pkg/device/drivers"
+	"github.com/kata-containers/kata-containers/src/runtime/pkg/device/quirks"
 	hv "github.com/kata-containers/kata-containers/src/runtime/pkg/hypervisors"
 	"github.com/kata-containers/kata-containers/src/runtime/pkg/katautils/katatrace"
 	pkgUtils "github.com/kata-containers/kata-containers/src/runtime/pkg/utils"
@@ -1873,6 +1874,8 @@ func (q *qemu) hotplugVFIODevice(ctx context.Context, device *config.VFIODev, op
 	} else {
 
 		q.Logger().WithField("dev-id", device.ID).Info("Start hot-unplug VFIO device")
+		quirks.ExecHotPlugQuirks(q.Logger())
+		q.Logger().WithField("dev-id", device.ID).Info("Quirk delayed hot-unplug VFIO device")
 
 		if q.state.HotPlugVFIO == config.BridgePort {
 			if err := q.arch.removeDeviceFromBridge(device.ID); err != nil {
