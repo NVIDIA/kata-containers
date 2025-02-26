@@ -12,6 +12,10 @@ spec:
       labels:
         name: kata-deploy
     spec:
+{{- with .Values.kataDeploy.nodeSelector }}
+      nodeSelector:
+{{- toYaml . | nindent 8 }}
+{{- end }}
 {{- with .Values.kataDeploy.imagePullSecrets }}
       imagePullSecrets:
 {{- toYaml . | nindent 6 }}

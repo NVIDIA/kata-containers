@@ -1,4 +1,4 @@
-{{- if .Values.kataGpuFeatureDiscovery -}}
+{{- if .Values.kataGpuFeatureDiscovery.enabled -}}
 apiVersion: apps/v1
 kind: DaemonSet
 metadata:
@@ -16,6 +16,9 @@ spec:
       runtimeClassName: kata-qemu-nvidia-gpu
       nodeSelector:
         katacontainers.io/gpu-feature-discovery: required
+{{- with .Values.kataGpuFeatureDiscovery.extraNodeLabels }}
+{{- toYaml . | nindent 8 }}
+{{- end }}
 {{- with .Values.kataDeploy.imagePullSecrets }}
       imagePullSecrets:
 {{- toYaml . | nindent 6 }}
