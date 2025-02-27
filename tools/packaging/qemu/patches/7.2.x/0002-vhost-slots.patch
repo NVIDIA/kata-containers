@@ -1,0 +1,21 @@
+diff --git a/hw/virtio/vhost-user.c b/hw/virtio/vhost-user.c
+index d92b026e1c..9242015451 100644
+--- a/hw/virtio/vhost-user.c
++++ b/hw/virtio/vhost-user.c
+@@ -59,6 +59,7 @@
+ #else
+ #define VHOST_USER_MAX_RAM_SLOTS 512
+ #endif
++#define VHOST_USER_MIN_RAM_SLOTS 48
+ 
+ /*
+  * Maximum size of virtio device config space
+@@ -2086,6 +2087,8 @@ static int vhost_user_backend_init(struct vhost_dev *dev, void *opaque,
+             }
+ 
+             u->user->memory_slots = MIN(ram_slots, VHOST_USER_MAX_RAM_SLOTS);
++            u->user->memory_slots = MAX(u->user->memory_slots, VHOST_USER_MIN_RAM_SLOTS);
++            warn_report("user->memory_slots req: %lu, actual: %u", ram_slots, u->user->memory_slots);
+         }
+     }
+ 
