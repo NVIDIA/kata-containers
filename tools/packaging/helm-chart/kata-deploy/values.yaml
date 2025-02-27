@@ -21,4 +21,7 @@ kataDeploy:
   containerdDropInConf: ""
   installPrefix: "/usr/local/bin"
   updateStrategy: OnDelete
-kataGpuFeatureDiscovery: true
+  nodeSelector: {}
+kataGpuFeatureDiscovery:
+  enabled: true
+  extraNodeLabels: {}
