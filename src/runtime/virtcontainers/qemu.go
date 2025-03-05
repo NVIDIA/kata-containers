@@ -66,6 +66,8 @@ const romFile = ""
 // Default value is false.
 const defaultDisableModern = false
 
+const dropCachesFile = "/proc/sys/vm/drop_caches"
+
 type qmpChannel struct {
 	qmp     *govmmQemu.QMP
 	ctx     context.Context
@@ -483,6 +485,11 @@ func (q *qemu) setupFileBackedMem(knobs *govmmQemu.Knobs, memory *govmmQemu.Memo
 		target = q.config.FileBackedMemRootDir
 	} else {
 		target = fallbackFileBackedMemDir
+		// we need to make sure that page cache is cleared before
+		// using /dev/shm
+		q.Logger().Info("Clearing page cache")
+		os.WriteFile(dropCachesFile, []byte("1"), 0200)
+		q.Logger().Info("Done clearing page cache")
 	}
 	if _, err := os.Stat(target); err != nil {
 		q.Logger().WithError(err).Error("File backed memory location does not exist")
