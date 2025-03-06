@@ -1,0 +1,13 @@
+---
+kind: RuntimeClass
+apiVersion: node.k8s.io/v1
+metadata:
+    name: kata-qemu-nvidia-gpu-708g
+handler: kata-qemu-nvidia-gpu-708g
+overhead:
+    podFixed:
+        memory: "708Gi"
+        cpu: "64"
+scheduling:
+  nodeSelector:
+    katacontainers.io/kata-runtime: "true"

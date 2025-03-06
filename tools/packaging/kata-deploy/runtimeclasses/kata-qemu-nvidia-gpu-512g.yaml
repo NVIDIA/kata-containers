@@ -1,0 +1,13 @@
+---
+kind: RuntimeClass
+apiVersion: node.k8s.io/v1
+metadata:
+    name: kata-qemu-nvidia-gpu-512g
+handler: kata-qemu-nvidia-gpu-512g
+overhead:
+    podFixed:
+        memory: "512Gi"
+        cpu: "32"
+scheduling:
+  nodeSelector:
+    katacontainers.io/kata-runtime: "true"
