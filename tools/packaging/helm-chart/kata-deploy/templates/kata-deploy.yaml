@@ -43,7 +43,7 @@ spec:
         - name: INSTALL_PREFIX
           value: '{{ .Values.kataDeploy.installPrefix }}'
         - name: SETUP_GPU_FEATURE_DISCOVERY
-          value: '{{ .Values.kataGpuFeatureDiscovery }}'
+          value: '{{ .Values.kataGpuFeatureDiscovery.enabled }}'
         - name: NODE_NAME
           valueFrom:
             fieldRef:
