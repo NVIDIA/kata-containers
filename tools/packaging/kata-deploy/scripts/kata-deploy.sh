@@ -87,8 +87,8 @@ function delete_runtimeclasses() {
 function get_container_runtime() {
 
 	local runtime=$(kubectl get node $NODE_NAME -o jsonpath='{.status.nodeInfo.containerRuntimeVersion}')
-	if [ "$?" -ne 0 ]; then
-                die "invalid node name"
+	if [ "$?" -ne 0 ] || [ -z "$runtime" ]; then
+                die "invalid node name or access error"
 	fi
 
 	if echo "$runtime" | grep -qE "cri-o"; then
