@@ -34,8 +34,6 @@ set_arch() {
     	fi
 }
 
-export ARCH=$(set_arch)
-
 regen_apt_cache_multistrap() 
 {
 	local multistrap_log=/multistrap.log
@@ -437,8 +435,6 @@ build_nvidia_drivers()
 			ln -sf /lib/modules/"${kernel_version}"/build/arch/x86 /lib/modules/"${kernel_version}"/build/arch/amd64
 		fi
 
-
-
 		make -j "$(nproc)" CC=gcc SYSSRC=/lib/modules/"${kernel_version}"/build > /dev/null
 		make -j "$(nproc)" CC=gcc SYSSRC=/lib/modules/"${kernel_version}"/build modules_install
 		make -j "$(nproc)" CC=gcc SYSSRC=/lib/modules/"${kernel_version}"/build clean > /dev/null
@@ -668,6 +664,8 @@ install_go () {
 	TDIR="/root/${FUNCNAME[0]}"
 
 	mkdir $TDIR
+
+	local ARCH=$(set_arch)
 
 	VERSION="1.21.5"
 	PACKAGE="go${VERSION}.linux-${ARCH}.tar.gz"
