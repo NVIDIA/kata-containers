@@ -20,8 +20,9 @@ kataDeploy:
   allowedHypervisorAnnotations: ""
   containerdDropInConf: ""
   installPrefix: "/usr/local/bin"
-  updateStrategy: OnDelete
+  updateStrategy: RollingUpdate
   nodeSelector: {}
+  cleanupOnExit: false
 kataGpuFeatureDiscovery:
   enabled: true
   extraNodeLabels: {}

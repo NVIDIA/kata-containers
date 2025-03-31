@@ -6,7 +6,7 @@ metadata:
 handler: kata-qemu-nvidia-gpu-256g
 overhead:
     podFixed:
-        memory: "256Gi"
+        memory: "257Gi"
         cpu: "16"
 scheduling:
   nodeSelector:
