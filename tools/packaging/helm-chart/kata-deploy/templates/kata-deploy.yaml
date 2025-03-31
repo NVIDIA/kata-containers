@@ -93,5 +93,7 @@ spec:
       - hostPath:
           path: /usr/local/bin/
         name: local-bin
+{{- with .Values.kataDeploy.updateStrategy }}
   updateStrategy:
-    type: '{{ .Values.kataDeploy.updateStrategy }}'
+{{- toYaml . | nindent 4 }}
+{{- end }}

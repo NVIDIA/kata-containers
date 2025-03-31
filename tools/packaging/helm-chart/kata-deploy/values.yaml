@@ -20,7 +20,6 @@ kataDeploy:
   allowedHypervisorAnnotations: ""
   containerdDropInConf: ""
   installPrefix: "/usr/local/bin"
-  updateStrategy: RollingUpdate
   nodeSelector: {}
   cleanupOnExit: false
 kataGpuFeatureDiscovery:
