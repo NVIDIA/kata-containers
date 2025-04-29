@@ -150,12 +150,28 @@ function get_kata_containers_config_path() {
 	echo "$config_path"
 }
 
-function install_artifacts() {
+function copy_to_host() {
+	if diff -r /opt/kata-artifacts/opt/kata /opt/kata/; then
+		echo "artifacts already up-to-date"
+		return 0
+	fi
 	echo "copying kata artifacts onto host"
-	cp -au /opt/kata-artifacts/opt/kata/* /opt/kata/
+	mkdir -p /opt/kata
+
+	# unlink binaries before overwriting to avoid the text-file busy error
+	# this is necessary for upgrades
+	kubectl label node "$NODE_NAME" --overwrite katacontainers.io/kata-runtime=cleanup
+	rm -f /opt/kata/bin/* /opt/kata/runtime-rs/bin/*
+	sleep 5
+	rm -rf /opt/kata/*
+
+	cp -a /opt/kata-artifacts/opt/kata/* /opt/kata/
 	chmod +x /opt/kata/bin/*
 	[ -d /opt/kata/runtime-rs/bin ] && \
 		chmod +x /opt/kata/runtime-rs/bin/*
+}
+function install_artifacts() {
+	copy_to_host
 
 	local config_path
 
