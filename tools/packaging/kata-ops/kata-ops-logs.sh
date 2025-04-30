@@ -3,9 +3,10 @@
 : ${JOURNAL_DIR:=/var/log/journal/}
 
 NS="default"
+FOLLOW="false"
 usage() {
   cat <<EOF
-Usage: $0 <pod-name> [-n namespace]
+Usage: $0 <pod-name> [-n namespace] [--follow]
 
 Prints the VM kernel logs corresponding to the Pod
 EOF
@@ -17,7 +18,7 @@ get_sandbox_id() {
 }
 
 main() {
-  if [[ $# -ne 1 ]] && [[ $# -ne 3 ]]; then
+  if [[ $# -lt 1 ]] || [[ $# -gt 4 ]]; then
     usage
     exit 1
   fi
@@ -26,8 +27,16 @@ main() {
     exit 1
   fi
 
-  if [[ $# -eq 3 ]]; then
+  if [[ $# -eq 3 ]] && [[ "$2" == "-n" ]]; then
     export NS="$3"
+  fi
+
+  if [[ $# -eq 2 ]] && [[ "$2" == "--follow" ]]; then
+    export FOLLOW="true"
+  fi
+
+  if [[ $# -eq 4 ]] && [[ "$4" == "--follow" ]]; then
+    export FOLLOW="true"
   fi
 
   echo "Getting sanbox id for $1 in namespace $NS..."
@@ -39,7 +48,11 @@ main() {
 
   echo "Getting logs for sandbox id $SBID..."
   echo ""
-  journalctl -D "${JOURNAL_DIR}" -u containerd -o cat | grep "sandbox=$SBID" | grep "vmconsole=\"\[" | sed "s/^.*vmconsole=//g"
+  if [[ $FOLLOW == "true" ]]; then
+    journalctl -D "${JOURNAL_DIR}" -f --no-tail -u containerd -o cat | grep "sandbox=$SBID" | grep "vmconsole=\"\[" | sed "s/^.*vmconsole=//g"
+  else
+    journalctl -D "${JOURNAL_DIR}" -u containerd -o cat | grep "sandbox=$SBID" | grep "vmconsole=\"\[" | sed "s/^.*vmconsole=//g"
+  fi
 }
 
 main "$@"
