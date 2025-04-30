@@ -77,6 +77,19 @@ spec:
           name: kata-artifacts
         - mountPath: /usr/local/bin/
           name: local-bin
+{{- with .Values.kataDeploy.kataOps }}
+      - command:
+        - bash
+        - -c
+        - sleep infinity
+        env:
+        - name: JOURNAL_DIR
+          value: /host-journal
+        image: '{{ .repository }}:{{ .version }}'
+        volumeMounts:
+        - mountPath: /host-journal
+          name: journal
+{{- end }}
       hostPID: true
       serviceAccountName: kata-deploy-sa
       volumes:
@@ -93,6 +106,10 @@ spec:
       - hostPath:
           path: /usr/local/bin/
         name: local-bin
+      - hostPath:
+          path: /var/log/journal/
+          type: ""
+        name: journal
 {{- with .Values.kataDeploy.updateStrategy }}
   updateStrategy:
 {{- toYaml . | nindent 4 }}
