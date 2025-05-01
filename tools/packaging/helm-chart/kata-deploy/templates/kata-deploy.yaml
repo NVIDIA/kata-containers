@@ -86,6 +86,7 @@ spec:
         - name: JOURNAL_DIR
           value: /host-journal
         image: '{{ .repository }}:{{ .version }}'
+        name: kata-ops
         volumeMounts:
         - mountPath: /host-journal
           name: journal
