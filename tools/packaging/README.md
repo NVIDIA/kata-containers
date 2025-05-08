@@ -57,8 +57,6 @@ To upgrade to a newer release, we should do one of the following:
 in anyways
     * For the duration above (which could be several minutes), the cluster cannot take new workloads. This is disruptive but existing workloads do not get aff
 ected.
-    * New image will get the new pods running and it will NOT be a rolling update. All the new pods will come up simultaneously and the new artifacts will be
-replaced in parallel.
-    * Apart from the downtime of new workloads (old workloads can be deleted), the system will be upgraded silently with the control plane using its eventual
-consistency model.
+    * New image will get the new pods running and it will NOT be a rolling update. All the new pods will come up simultaneously and the new artifacts will be replaced in parallel.
+    * Apart from the downtime of new workloads (old workloads can be deleted), the system will be upgraded silently with the control plane using its eventual consistency model.
 
