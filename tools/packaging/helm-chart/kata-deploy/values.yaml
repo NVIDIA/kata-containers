@@ -25,3 +25,6 @@ kataDeploy:
 kataGpuFeatureDiscovery:
   enabled: true
   extraNodeLabels: {}
+kyverno:
+  enabled: true
+  failureAction: Enforce
