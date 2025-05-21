@@ -32,6 +32,7 @@ spec:
               "nvidia.com/pgpu": 1
             limits:
               "nvidia.com/pgpu": 1
+              memory: "8G"
           volumeMounts:
             - name: output-dir
               mountPath: "/etc/kubernetes/node-feature-discovery/features.d"
@@ -67,6 +68,9 @@ spec:
           volumeMounts:
             - name: output-dir
               mountPath: "/etc/kubernetes/node-feature-discovery/features.d"
+          resources:
+            limits:
+              memory: "8G"
       serviceAccountName: kata-deploy-sa
       volumes:
         - name: output-dir
