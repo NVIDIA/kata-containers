@@ -91,7 +91,7 @@ create_udev_rule()
 
 	# If the difference is greater than or equal to wait_time, execute the target script
 	if [ "$time_diff" -ge "$wait_time" ]; then
-	        nvidia_container_toolkit
+		nvidia_container_toolkit
 	fi
 	CHROOT_EOF
 
@@ -307,7 +307,7 @@ install_nvidia_ctk()
 	echo "chroot: Installing NVIDIA GPU container runtime"
 	# Base  gives a nvidia-ctk and the nvidia-container-runtime 
 	#eval "${APT_INSTALL}" nvidia-container-toolkit-base=1.13.2-1
-	eval "${APT_INSTALL}" nvidia-container-toolkit-base
+	eval "${APT_INSTALL}" nvidia-container-toolkit-base=1.17.6-1
 }
 
 install_nvidia_fabricmanager() 
@@ -573,7 +573,7 @@ setup_apt_repositories()
 	# shellcheck source=/dev/null
 	distribution=$(. /etc/os-release;echo "${ID}${VERSION_ID}")
 	curl -fsSL https://nvidia.github.io/libnvidia-container/gpgkey | gpg --dearmor -o /usr/share/keyrings/nvidia-container-toolkit-keyring.gpg
-		curl -s -L https://nvidia.github.io/libnvidia-container/experimental/"${distribution}"/libnvidia-container.list | \
+		curl -s -L https://nvidia.github.io/libnvidia-container/stable/deb/libnvidia-container.list | \
         	sed 's#deb https://#deb [signed-by=/usr/share/keyrings/nvidia-container-toolkit-keyring.gpg] https://#g' | \
          	tee /etc/apt/sources.list.d/nvidia-container-toolkit.list
 	apt update
