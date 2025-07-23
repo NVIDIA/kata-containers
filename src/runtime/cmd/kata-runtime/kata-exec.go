@@ -33,9 +33,11 @@ const (
 
 	defaultTimeout = 3 * time.Second
 
-	subCommandName = "exec"
+	subCommandName      = "exec"
+	batchSubCommandName = "exec-batch"
 	// command-line parameters name
 	paramDebugConsolePort                    = "kata-debug-port"
+	paramBatchCmd                            = "command"
 	defaultKernelParamDebugConsoleVPortValue = 1026
 )
 
@@ -47,6 +49,87 @@ var (
 		},
 	}
 )
+
+var kataExecBatchCLICommand = cli.Command{
+	Name:  batchSubCommandName,
+	Usage: "Execute a command in the debug shell",
+	Flags: []cli.Flag{
+		cli.Uint64Flag{
+			Name:  paramDebugConsolePort,
+			Usage: "Port that debug console is listening on. (Default: 1026)",
+		},
+		cli.StringFlag{
+			Name:  paramBatchCmd,
+			Usage: "Command to execute",
+		},
+	},
+	Action: func(context *cli.Context) error {
+		port := context.Uint64(paramDebugConsolePort)
+		if port == 0 {
+			port = defaultKernelParamDebugConsoleVPortValue
+		}
+
+		sandboxID := context.Args().Get(0)
+
+		if err := katautils.VerifyContainerID(sandboxID); err != nil {
+			return err
+		}
+		cmd := context.String(paramBatchCmd)
+		if cmd == "" {
+			return errors.New("command is required")
+		}
+
+		conn, err := getConn(sandboxID, port)
+
+		if err != nil {
+			return err
+		}
+		defer conn.Close()
+
+		con := console.Current()
+		defer con.Reset()
+
+		if err := con.SetRaw(); err != nil {
+			return err
+		}
+
+		iostream := &iostream{
+			conn:   conn,
+			exitch: make(chan struct{}),
+			closed: false,
+		}
+
+		batchIoCopy(iostream, con, cmd)
+
+		<-iostream.exitch
+		return nil
+	},
+}
+
+func batchIoCopy(stream *iostream, con console.Console, cmd string) {
+	var wg sync.WaitGroup
+
+	// stdin
+	go func() {
+		stream.Write([]byte("\n"))
+		stream.Write([]byte(cmd))
+		stream.Write([]byte("\n"))
+		time.Sleep(time.Second)
+		stream.Write([]byte("exit\n"))
+	}()
+
+	// stdout
+	wg.Add(1)
+	go func() {
+		p := bufPool.Get().(*[]byte)
+		defer bufPool.Put(p)
+		io.CopyBuffer(os.Stdout, stream, *p)
+		wg.Done()
+	}()
+
+	wg.Wait()
+	close(stream.exitch)
+}
 
 var kataExecCLICommand = cli.Command{
 	Name:  subCommandName,
