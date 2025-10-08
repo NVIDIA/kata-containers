@@ -407,7 +407,7 @@ function configure_containerd_runtime() {
 			break
 		done
 	fi
-        tomlq -i '.plugins."io.containerd.timeout.task.state" = "120s"' ${containerd_conf_file}
+	tomlq -i -t '.timeouts."io.containerd.timeout.task.state" = "120s"' /etc/containerd/config.toml
 }
 
 function configure_containerd() {
