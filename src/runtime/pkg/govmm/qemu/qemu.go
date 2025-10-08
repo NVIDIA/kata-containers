@@ -14,6 +14,7 @@
 package qemu
 
 import (
+	"bufio"
 	"context"
 	"fmt"
 	"io"
@@ -2947,7 +2948,19 @@ func (config *Config) appendCPUs() error {
 		}
 
 		config.qemuParams = append(config.qemuParams, "-smp")
-		config.qemuParams = append(config.qemuParams, strings.Join(SMPParams, ","))
+		// QEMU does not pass topology information correctly to the
+		// guest on AMD hosts. This results in guest kernel crashes
+		// during topology init. The workaround is to skip smp params
+		skipSMPParams, err := isAMD()
+		if err != nil {
+			return fmt.Errorf("Unable to determine host cpu family - %v", err)
+		}
+
+		if skipSMPParams {
+			config.qemuParams = append(config.qemuParams, fmt.Sprintf("%d", config.SMP.CPUs))
+		} else {
+			config.qemuParams = append(config.qemuParams, strings.Join(SMPParams, ","))
+		}
 	}
 
 	return nil
@@ -3235,4 +3248,36 @@ func LaunchCustomQemu(ctx context.Context, path string, params []string, fds []*
 		return nil, nil, err
 	}
 	return cmd, reader, nil
+}
+
+// getCPUVendor gets the vendor ID string from the host
+func getCPUVendor() (string, error) {
+	file, err := os.Open("/proc/cpuinfo")
+	if err != nil {
+		return "", err
+	}
+	defer file.Close()
+
+	scanner := bufio.NewScanner(file)
+	for scanner.Scan() {
+		line := scanner.Text()
+		if strings.HasPrefix(line, "vendor_id") {
+			parts := strings.Split(line, ":")
+			if len(parts) == 2 {
+				vendor := strings.TrimSpace(parts[1])
+				return vendor, nil
+			}
+		}
+	}
+
+	return "", nil
+}
+
+// isAMD determines whether the host CPU is of AMD family
+func isAMD() (bool, error) {
+	vendor, err := getCPUVendor()
+	if err != nil {
+		return false, err
+	}
+	return vendor == "AuthenticAMD", nil
 }
