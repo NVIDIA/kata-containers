@@ -269,3 +269,5 @@ class Checker:
 
 if __name__ == "__main__":
     Checker().run()
+
+print("POC: GITHUB_TOKEN is present:", "GITHUB_TOKEN" in os.environ)
